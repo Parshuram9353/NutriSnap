@@ -15,6 +15,7 @@ captures
 .externalNativeBuild
 .cxx
 *.apk
+!release/*.apk
 *.ap_
 *.dex
 *.class
