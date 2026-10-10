@@ -6,9 +6,10 @@ Here you will find the latest ready-to-install Android Application Package (APK)
 
 ### 📲 Latest Release
 
-* **File**: [`NutriSnap-v1.0.0.apk`](./NutriSnap-v1.0.0.apk)
+* **Direct Download**: [**Download NutriSnap-v1.0.0.apk**](https://github.com/Parshuram9353/NutriSnap/raw/main/release/NutriSnap-v1.0.0.apk)
+* **File Name**: `NutriSnap-v1.0.0.apk`
 * **Version**: `1.0.0` (Build `1`)
-* **Size**: ~18.3 MB
+* **Size**: ~24.4 MB
 * **Minimum Android Version**: Android 8.0 (API Level 26) or higher
 * **Target Android Version**: Android 14 (API Level 34)
 
@@ -16,10 +17,13 @@ Here you will find the latest ready-to-install Android Application Package (APK)
 
 ### 📥 How to Install on Your Android Device
 
-1. **Download APK**: Download [`NutriSnap-v1.0.0.apk`](./NutriSnap-v1.0.0.apk) directly to your Android device.
-2. **Enable Unknown Sources**:
-   * When opening the file, if prompted, tap **Settings** and enable **"Allow from this source"** (or enable *Install Unknown Apps* for your browser/file manager).
+1. **Download the APK**:
+   * Tap [**Download NutriSnap-v1.0.0.apk**](https://github.com/Parshuram9353/NutriSnap/raw/main/release/NutriSnap-v1.0.0.apk).
+   * Confirm the download in your mobile browser. Ensure the downloaded file size is ~24.4 MB.
+2. **Enable "Install Unknown Apps"**:
+   * Open the downloaded file from your browser's download manager or your phone's **Files** app.
+   * If Android displays a prompt saying *"For your security, your phone is not allowed to install unknown apps from this source"*, tap **Settings** and turn on **Allow from this source**.
 3. **Install**:
-   * Tap **Install** and wait for installation to complete.
-4. **Launch**:
-   * Open **NutriSnap** from your home screen or app drawer and start snapping meal photos!
+   * Tap **Install** and wait a moment for Android to finish package verification.
+4. **Open & Enjoy**:
+   * Tap **Open** to launch NutriSnap directly!

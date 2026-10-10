@@ -6,10 +6,10 @@
 
 ## 📥 Download App
 
-[![Download APK](https://img.shields.io/badge/Download-NutriSnap%20v1.0.0%20APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](release/NutriSnap-v1.0.0.apk)
+[![Direct Download APK](https://img.shields.io/badge/Direct%20Download-NutriSnap%20v1.0.0%20APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/Parshuram9353/NutriSnap/raw/main/release/NutriSnap-v1.0.0.apk)
 
 Get the ready-to-install Android application directly from the repository:
-* 📲 **[NutriSnap-v1.0.0.apk](release/NutriSnap-v1.0.0.apk)** *(~18.3 MB, Android 8.0+)*
+* 📲 **[Download NutriSnap-v1.0.0.apk](https://github.com/Parshuram9353/NutriSnap/raw/main/release/NutriSnap-v1.0.0.apk)** *(~24.4 MB, Android 8.0+)*
 * 📖 See [Release Guide](release/README.md) for step-by-step installation instructions.
 
 ---
