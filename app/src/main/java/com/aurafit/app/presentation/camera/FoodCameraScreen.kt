@@ -2,8 +2,13 @@ package com.aurafit.app.presentation.camera
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
+import java.io.File
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -45,15 +50,41 @@ fun FoodCameraScreen(
     var selectedBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var foodContextNote by remember { mutableStateOf("") }
     var showLoggedToast by remember { mutableStateOf(false) }
+    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
 
-    // Camera capture launcher (takes photo directly into preview)
+    // Camera capture launcher - saves full-resolution image to cache file, exactly like upload
     val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) { bitmap: Bitmap? ->
-        if (bitmap != null) {
-            selectedBitmap = bitmap
-            dashboardViewModel.discardScannedMeal()
-            showLoggedToast = false
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && tempCameraUri != null) {
+            try {
+                context.contentResolver.openInputStream(tempCameraUri!!)?.use { inputStream ->
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    if (bitmap != null) {
+                        val oriented = rotateBitmapIfNeeded(context, tempCameraUri!!, bitmap)
+                        selectedBitmap = oriented
+                        dashboardViewModel.discardScannedMeal()
+                        showLoggedToast = false
+                    }
+                }
+            } catch (e: Exception) {
+                // Handled gracefully
+            }
+        }
+    }
+
+    val launchCamera = {
+        try {
+            val photoFile = File(context.cacheDir, "camera_snap_${System.currentTimeMillis()}.jpg")
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                photoFile
+            )
+            tempCameraUri = uri
+            cameraLauncher.launch(uri)
+        } catch (e: Exception) {
+            // Handled gracefully
         }
     }
 
@@ -246,7 +277,7 @@ fun FoodCameraScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
-                        onClick = { cameraLauncher.launch(null) },
+                        onClick = { launchCamera() },
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp),
@@ -303,7 +334,7 @@ fun FoodCameraScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         OutlinedButton(
-                            onClick = { cameraLauncher.launch(null) },
+                            onClick = { launchCamera() },
                             modifier = Modifier
                                 .weight(1f)
                                 .height(40.dp),
@@ -642,5 +673,28 @@ private fun MacroNutrientPill(
             Text(value, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
             Text(label, fontSize = 9.sp, color = color, fontWeight = FontWeight.Medium)
         }
+    }
+}
+
+private fun rotateBitmapIfNeeded(context: android.content.Context, uri: Uri, bitmap: Bitmap): Bitmap {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri) ?: return bitmap
+        val exif = ExifInterface(inputStream)
+        val orientation = exif.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL
+        )
+        inputStream.close()
+
+        val matrix = Matrix()
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+            else -> return bitmap
+        }
+        Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    } catch (e: Exception) {
+        bitmap
     }
 }

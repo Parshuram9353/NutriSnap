@@ -82,7 +82,7 @@ class AnalyzeFoodImageUseCase @Inject constructor(
             Log.d("AnalyzeFoodImageUseCase", "On-device TFLite predictions: $predictions")
 
             val topMatch = predictions.firstOrNull()
-            if (topMatch != null && topMatch.confidence > 0.05f) {
+            if (topMatch != null && topMatch.confidence > 0.005f) {
                 val baseResponse = FoodNutritionDatabase.lookup(topMatch.label)
 
                 // Enhance summary with confidence and alternative detected items
@@ -143,6 +143,6 @@ class AnalyzeFoodImageUseCase @Inject constructor(
             return FoodNutritionDatabase.lookup(predictions.first().label)
         }
 
-        return FoodNutritionDatabase.lookup("salad")
+        return FoodNutritionDatabase.lookup("roti")
     }
 }

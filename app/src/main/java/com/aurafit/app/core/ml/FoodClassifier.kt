@@ -89,20 +89,34 @@ class FoodClassifier @Inject constructor(
         }
 
         return try {
+            // Convert to ARGB_8888 software bitmap if HARDWARE bitmap or other config
+            val safeBitmap = if (bitmap.config == Bitmap.Config.HARDWARE || bitmap.config == null) {
+                bitmap.copy(Bitmap.Config.ARGB_8888, false) ?: run {
+                    val fallback = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+                    val canvas = android.graphics.Canvas(fallback)
+                    canvas.drawBitmap(bitmap, 0f, 0f, null)
+                    fallback
+                }
+            } else {
+                bitmap
+            }
+
             // Build image processor matching model input
             val imageProcessor = ImageProcessor.Builder()
                 .add(ResizeOp(inputHeight, inputWidth, ResizeOp.ResizeMethod.BILINEAR))
                 .apply {
                     if (inputDataType == DataType.FLOAT32) {
-                        // Standard MobileNet float normalization
                         add(NormalizeOp(127.5f, 127.5f))
                     }
                 }
                 .build()
 
             var tensorImage = TensorImage(inputDataType)
-            tensorImage.load(bitmap)
+            tensorImage.load(safeBitmap)
             tensorImage = imageProcessor.process(tensorImage)
+
+            val inputBuffer = tensorImage.buffer
+            inputBuffer.rewind()
 
             // Prepare output container
             val probabilities: FloatArray
@@ -110,7 +124,7 @@ class FoodClassifier @Inject constructor(
                 val outputBuffer = ByteBuffer.allocateDirect(outputSize).apply {
                     order(ByteOrder.nativeOrder())
                 }
-                interp.run(tensorImage.buffer, outputBuffer)
+                interp.run(inputBuffer, outputBuffer)
                 outputBuffer.rewind()
                 val rawBytes = ByteArray(outputSize)
                 outputBuffer.get(rawBytes)
@@ -119,7 +133,7 @@ class FoodClassifier @Inject constructor(
                 }
             } else {
                 val outputArray = Array(1) { FloatArray(outputSize) }
-                interp.run(tensorImage.buffer, outputArray)
+                interp.run(inputBuffer, outputArray)
                 probabilities = outputArray[0]
             }
 
