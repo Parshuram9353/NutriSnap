@@ -42,7 +42,7 @@ fun MacroTrackerScreen(
         item {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text("AI Nutrition Tracker", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                Text("Type in natural language to parse meals instantly via OpenAI.", fontSize = 11.sp, color = Color.Gray)
+                Text("Type in natural language to parse meals instantly with the offline database.", fontSize = 11.sp, color = Color.Gray)
             }
         }
 
@@ -136,18 +136,6 @@ fun MacroTrackerScreen(
                                 modifier = Modifier.size(18.dp)
                             ) {
                                 Text("✕", fontSize = 10.sp, color = Color(0xFFFCA5A5))
-                            }
-                        }
-                        
-                        if (err.contains("429") || err.contains("Quota") || err.contains("API key") || err.contains("API Key") || err.contains("Unauthorized") || err.contains("Http error") || err.contains("HTTP error")) {
-                            Button(
-                                onClick = { dashboardViewModel.clearOpenAiKey() },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.08f)),
-                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
-                                shape = RoundedCornerShape(8.dp),
-                                modifier = Modifier.align(Alignment.End).height(26.dp)
-                            ) {
-                                Text("Clear API Key & Run Offline", fontSize = 9.sp, color = Color.White, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

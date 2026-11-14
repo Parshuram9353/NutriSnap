@@ -45,8 +45,6 @@ fun FoodCameraScreen(
     var selectedBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var foodContextNote by remember { mutableStateOf("") }
     var showLoggedToast by remember { mutableStateOf(false) }
-    var showApiKeyDialog by remember { mutableStateOf(false) }
-    var apiKeyInput by remember { mutableStateOf("") }
 
     // Camera capture launcher (takes photo directly into preview)
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -112,15 +110,11 @@ fun FoodCameraScreen(
                         )
                     }
                     Surface(
-                        onClick = {
-                            apiKeyInput = dashboardViewModel.getOpenAiKey()
-                            showApiKeyDialog = true
-                        },
                         shape = RoundedCornerShape(20.dp),
-                        color = if (uiState.hasOpenAiKey) Color(0xFF133827) else MacroViolet.copy(alpha = 0.15f),
+                        color = Color(0xFF133827),
                         border = androidx.compose.foundation.BorderStroke(
                             1.dp,
-                            if (uiState.hasOpenAiKey) Color(0xFF10B981) else MacroViolet.copy(alpha = 0.35f)
+                            Color(0xFF10B981)
                         )
                     ) {
                         Row(
@@ -129,17 +123,17 @@ fun FoodCameraScreen(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
-                                if (uiState.hasOpenAiKey) "🟢 OpenAI Active" else "⚙️ Set OpenAI Key",
+                                "⚡ 100% Offline AI",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (uiState.hasOpenAiKey) Color(0xFF6EE7B7) else MacroViolet
+                                color = Color(0xFF6EE7B7)
                             )
                         }
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    "Take a photo or upload an image, then tap Send to fetch accurate nutritional data from ChatGPT.",
+                    "Take a photo or upload an image. NutriSnap recognizes your meal locally on your device with zero internet.",
                     fontSize = 11.sp,
                     color = Color.Gray,
                     lineHeight = 15.sp
@@ -192,13 +186,13 @@ fun FoodCameraScreen(
                                     modifier = Modifier.size(44.dp)
                                 )
                                 Text(
-                                    "Analyzing meal with ChatGPT...",
+                                    "Analyzing meal with On-Device AI...",
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
                                 Text(
-                                    "Fetching accurate ingredients, portion size & macros",
+                                    "Recognizing food & calculating macros 100% offline",
                                     fontSize = 10.sp,
                                     color = Color.LightGray,
                                     textAlign = TextAlign.Center
@@ -299,7 +293,7 @@ fun FoodCameraScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Analyzing...", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         } else {
-                            Text("🚀 Send to ChatGPT", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("⚡ Scan & Analyze Food (Offline)", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
 
@@ -394,22 +388,10 @@ fun FoodCameraScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            if (uiState.hasOpenAiKey) "🟢 Photo will be sent directly to ChatGPT Vision" else "⚡ Analyzing using smart visual food recognition",
+                            "⚡ On-device neural classifier active (2,000+ foods, 100% offline)",
                             fontSize = 10.sp,
-                            color = if (uiState.hasOpenAiKey) Color(0xFF6EE7B7) else Color.LightGray
+                            color = Color(0xFF6EE7B7)
                         )
-                        if (!uiState.hasOpenAiKey) {
-                            TextButton(
-                                onClick = {
-                                    apiKeyInput = dashboardViewModel.getOpenAiKey()
-                                    showApiKeyDialog = true
-                                },
-                                contentPadding = PaddingValues(0.dp),
-                                modifier = Modifier.height(26.dp)
-                            ) {
-                                Text("Add Key", fontSize = 10.sp, color = MacroViolet)
-                            }
-                        }
                     }
                 }
             }
@@ -549,7 +531,7 @@ fun FoodCameraScreen(
                         ) {
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(
-                                    "💡 ChatGPT Nutritional Insight",
+                                    "💡 NutriSnap On-Device AI Insight",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.LightGray
@@ -638,78 +620,6 @@ fun FoodCameraScreen(
                 }
             }
         }
-    }
-
-    if (showApiKeyDialog) {
-        AlertDialog(
-            onDismissRequest = { showApiKeyDialog = false },
-            containerColor = SurfaceDark,
-            shape = RoundedCornerShape(20.dp),
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("🤖", fontSize = 20.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("OpenAI API Key", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                }
-            },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        "Enter your OpenAI API Key (starts with sk-...) to send images to ChatGPT Vision (GPT-4o-mini). If no key is set, the app will run using intelligent local visual food recognition.",
-                        fontSize = 11.sp,
-                        color = Color.LightGray,
-                        lineHeight = 15.sp
-                    )
-
-                    OutlinedTextField(
-                        value = apiKeyInput,
-                        onValueChange = { apiKeyInput = it },
-                        placeholder = { Text("sk-Proj-...", fontSize = 11.sp, color = Color.DarkGray) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFF0D1017),
-                            unfocusedContainerColor = Color(0xFF0D1017),
-                            focusedBorderColor = MacroViolet,
-                            unfocusedBorderColor = SlateBorder,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        singleLine = true
-                    )
-
-                    if (uiState.hasOpenAiKey) {
-                        TextButton(
-                            onClick = {
-                                apiKeyInput = ""
-                                dashboardViewModel.clearOpenAiKey()
-                                showApiKeyDialog = false
-                            },
-                            modifier = Modifier.align(Alignment.Start)
-                        ) {
-                            Text("Clear / Remove Key", fontSize = 11.sp, color = Color(0xFFEF4444))
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        dashboardViewModel.saveOpenAiKey(apiKeyInput)
-                        showApiKeyDialog = false
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MacroViolet),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text("Save Key", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showApiKeyDialog = false }) {
-                    Text("Cancel", fontSize = 12.sp, color = Color.Gray)
-                }
-            }
-        )
     }
 }
 

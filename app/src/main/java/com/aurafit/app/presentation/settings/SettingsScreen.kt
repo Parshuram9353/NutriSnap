@@ -29,9 +29,6 @@ fun SettingsScreen(
 ) {
     val goals by viewModel.userGoals.collectAsState()
 
-    var apiKey by remember { mutableStateOf(encryptedPrefs.getOpenAiKey()) }
-    var supabaseUrl by remember { mutableStateOf(encryptedPrefs.getSupabaseUrl()) }
-    var supabaseKey by remember { mutableStateOf(encryptedPrefs.getSupabaseKey()) }
     var cloudSyncEnabled by remember { mutableStateOf(!encryptedPrefs.isOfflineMode()) }
     var showSavedMessage by remember { mutableStateOf(false) }
 
@@ -46,7 +43,7 @@ fun SettingsScreen(
         item {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text("Settings & Nutrition Goals", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                Text("Configure your daily macros, calorie targets, and ChatGPT Vision backend.", fontSize = 11.sp, color = Color.Gray)
+                Text("Configure your daily macros, calorie targets, and local database goals.", fontSize = 11.sp, color = Color.Gray)
             }
         }
 
@@ -180,46 +177,28 @@ fun SettingsScreen(
             }
         }
 
-        // OpenAI ChatGPT API Configuration
+        // Offline On-Device AI Engine Information Card
         item {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(20.dp))
                     .background(SurfaceDark)
-                    .border(1.dp, SlateBorder, RoundedCornerShape(20.dp))
+                    .border(1.dp, Color(0xFF10B981).copy(alpha = 0.4f), RoundedCornerShape(20.dp))
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("🤖", fontSize = 18.sp)
+                    Text("⚡", fontSize = 18.sp)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("ChatGPT Backend Configuration", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("100% Offline AI Vision Engine", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
 
                 Text(
-                    "Insert your OpenAI API Key (`sk-...`) to enable live GPT-4o-mini Vision food recognition. The AI model analyzes photo pixels to identify dishes, portions, calories, protein, carbs, and fats.",
+                    "NutriSnap runs completely on your device using TensorFlow Lite neural food classification and an embedded offline nutrition database. No internet connection, cloud servers, or API keys required.",
                     fontSize = 11.sp,
                     color = Color.LightGray,
                     lineHeight = 15.sp
-                )
-
-                OutlinedTextField(
-                    value = apiKey,
-                    onValueChange = {
-                        apiKey = it
-                        encryptedPrefs.saveOpenAiKey(it)
-                    },
-                    placeholder = { Text("sk-Proj-...", fontSize = 11.sp, color = Color.DarkGray) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFF0D1017),
-                        unfocusedContainerColor = Color(0xFF0D1017),
-                        focusedBorderColor = MacroViolet,
-                        unfocusedBorderColor = SlateBorder
-                    ),
-                    shape = RoundedCornerShape(12.dp)
                 )
 
                 Row(
@@ -228,20 +207,11 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        if (apiKey.isNotBlank()) "✓ API Key Configured" else "⚡ Running in Built-in AI Mode",
+                        "🟢 On-Device Classifier Active (2,000+ Dishes)",
                         fontSize = 10.sp,
-                        color = if (apiKey.isNotBlank()) Color(0xFF6EE7B7) else MacroViolet,
+                        color = Color(0xFF6EE7B7),
                         fontWeight = FontWeight.SemiBold
                     )
-
-                    if (apiKey.isNotBlank()) {
-                        TextButton(onClick = {
-                            apiKey = ""
-                            encryptedPrefs.saveOpenAiKey("")
-                        }) {
-                            Text("Clear Key", fontSize = 10.sp, color = Color(0xFFFCA5A5))
-                        }
-                    }
                 }
             }
         }

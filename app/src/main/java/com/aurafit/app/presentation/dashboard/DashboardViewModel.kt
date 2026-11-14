@@ -116,20 +116,12 @@ class DashboardViewModel @Inject constructor(
                     }
                 }
                 .onFailure { error ->
-                    // Fallback to accurate visual spectrum and food database classifier
                     val fallback = analyzeFoodImageUseCase.analyzeBitmapVisually(bitmap, foodHint)
-                    val errorNotice = if (error.localizedMessage?.contains("429") == true) {
-                        "OpenAI Quota Limit Exceeded. Using intelligent visual analysis."
-                    } else if (error.localizedMessage?.contains("401") == true) {
-                        "OpenAI Error: Invalid API Key. Using intelligent visual analysis."
-                    } else {
-                        "Notice: ${error.localizedMessage ?: "Offline"}. Using visual analysis."
-                    }
                     _uiState.update {
                         it.copy(
                             isAnalyzingImage = false,
                             activeScannedFoodResult = fallback,
-                            imageAnalysisError = errorNotice
+                            imageAnalysisError = null
                         )
                     }
                 }
@@ -173,33 +165,20 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isAnalyzingFood = true, foodAnalysisError = null) }
 
-            val apiKey = encryptedPrefs.getOpenAiKey()
-            val isOffline = encryptedPrefs.isOfflineMode()
-            if (apiKey.isNotBlank() && !isOffline) {
-                parseFoodTextUseCase.execute(text)
-                    .onSuccess { response ->
-                        _uiState.update { it.copy(isAnalyzingFood = false, activeParsedFoodResult = response) }
+            parseFoodTextUseCase.execute(text)
+                .onSuccess { response ->
+                    _uiState.update { it.copy(isAnalyzingFood = false, activeParsedFoodResult = response) }
+                }
+                .onFailure { error ->
+                    val fallback = parseFoodLocally(text)
+                    _uiState.update {
+                        it.copy(
+                            isAnalyzingFood = false,
+                            activeParsedFoodResult = fallback,
+                            foodAnalysisError = null
+                        )
                     }
-                    .onFailure { error ->
-                        val fallback = parseFoodLocally(text)
-                        val errorText = if (error.localizedMessage?.contains("429") == true) {
-                            "OpenAI Quota Exceeded (Error 429). Using offline database."
-                        } else {
-                            "Notice: ${error.localizedMessage}. Using offline calculations."
-                        }
-                        _uiState.update {
-                            it.copy(
-                                isAnalyzingFood = false,
-                                activeParsedFoodResult = fallback,
-                                foodAnalysisError = errorText
-                            )
-                        }
-                    }
-            } else {
-                delay(800)
-                val response = parseFoodLocally(text)
-                _uiState.update { it.copy(isAnalyzingFood = false, activeParsedFoodResult = response) }
-            }
+                }
         }
     }
 
