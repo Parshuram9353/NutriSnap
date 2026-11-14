@@ -20,6 +20,7 @@ Choose between the **v1 (ChatGPT Cloud Edition)** or **v2 (100% Offline AI Editi
 * **Features**:
   - Embedded **MobileNet / AIY TensorFlow Lite** on-device vision model (~50ms inference).
   - Pre-loaded offline nutrition database with **2,000+ Indian & Global dishes** (USDA + IFCT).
+  - High-resolution FileProvider camera capture & automatic EXIF orientation support (accurate detection for both Camera and Gallery uploads).
   - Encrypted SQLCipher database storing logs locally on your phone.
 
 ---
